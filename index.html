@@ -38,7 +38,6 @@
     animation: goldShine 3s infinite alternate;
 }
 
-/* التوهج المعدني المتحرك */
 @keyframes goldShine {
     0% { background-position: 0% 50%; border-color: #555; }
     100% { background-position: 100% 50%; border-color: gold; }
@@ -126,37 +125,25 @@
 
 <script>
    const goldenPack40 = [
-    // الرقم 9 (أحمر، أخضر، بنفسجي)
     {t: 'n', v: 9, c: 'bg-red'}, {t: 'n', v: 9, c: 'bg-green'}, {t: 'n', v: 9, c: 'bg-purple'},
-    // الرقم 8 (أزرق، أصفر، أحمر)
     {t: 'n', v: 8, c: 'bg-blue'}, {t: 'n', v: 8, c: 'bg-yellow'}, {t: 'n', v: 8, c: 'bg-red'},
-    // الرقم 7 (أخضر، بنفسجي، أزرق)
     {t: 'n', v: 7, c: 'bg-green'}, {t: 'n', v: 7, c: 'bg-purple'}, {t: 'n', v: 7, c: 'bg-blue'},
-    // الرقم 6 (أصفر، أحمر، أخضر)
     {t: 'n', v: 6, c: 'bg-yellow'}, {t: 'n', v: 6, c: 'bg-red'}, {t: 'n', v: 6, c: 'bg-green'},
-    // الرقم 5 (أزرق، بنفسجي، أصفر)
     {t: 'n', v: 5, c: 'bg-blue'}, {t: 'n', v: 5, c: 'bg-purple'}, {t: 'n', v: 5, c: 'bg-yellow'},
-    // الرقم 4 (أحمر، أخضر، أزرق)
     {t: 'n', v: 4, c: 'bg-red'}, {t: 'n', v: 4, c: 'bg-green'}, {t: 'n', v: 4, c: 'bg-blue'},
-    // الرقم 3 (أحمر، أخضر، بنفسجي)
     {t: 'n', v: 3, c: 'bg-red'}, {t: 'n', v: 3, c: 'bg-green'}, {t: 'n', v: 3, c: 'bg-purple'},
-    // الرقم 2 (أزرق، أصفر)
     {t: 'n', v: 2, c: 'bg-blue'}, {t: 'n', v: 2, c: 'bg-yellow'},
-    // الرقم 1 (أحمر، أخضر، أزرق)
     {t: 'n', v: 1, c: 'bg-red'}, {t: 'n', v: 1, c: 'bg-green'}, {t: 'n', v: 1, c: 'bg-blue'},
-    
-    // 7 مربعات إضافية من الأرقام المتوسطة (لإكمال الـ 33 مربعاً):
     {t: 'n', v: 6, c: 'bg-blue'}, {t: 'n', v: 5, c: 'bg-red'}, {t: 'n', v: 4, c: 'bg-yellow'},
     {t: 'n', v: 6, c: 'bg-purple'}, {t: 'n', v: 5, c: 'bg-green'}, {t: 'n', v: 4, c: 'bg-purple'},
     {t: 'n', v: 9, c: 'bg-yellow'}
 ];
- let currentTurnHistory = []; // سجل يحفظ كل حركة في الدور الحالي {id, value, type}   
- let lastTurnScore = 0; // لحفظ سكور آخر دور عشان نقدر نرجع عنه   
- let gameHistory = []; // مصفوفة لحفظ تاريخ اللعبة   
- let openedCount = 0; // هذا عداد المربعات التي تفتحها 
+ let currentTurnHistory = [];  
+ let lastTurnScore = 0;  
+ let gameHistory = [];  
+ let openedCount = 0; 
 let teams = [], currentTeamIdx = 0, turnPicks = [], isProcessing = false, audioCtx, cycleInterval, ballsCount = 2;
 
-// --- دالة التخزين الذاتي ---
 function saveNamesToStorage() {
     const names = teams.map(t => t.name);
     let savedNames = JSON.parse(localStorage.getItem('savedNames') || '[]');
@@ -170,7 +157,6 @@ function saveState() {
         turnPicks: JSON.parse(JSON.stringify(turnPicks)),
         currentTeamIdx: currentTeamIdx,
         ballsCount: ballsCount,
-        // حفظ حالة المربعات المفتوحة
         openedIds: Array.from(document.querySelectorAll('.square.open')).map(el => el.id)
     });
 }
@@ -178,28 +164,22 @@ function saveState() {
 function undoSquare() {
     if (currentTurnHistory.length === 0) return;
 
-    // استرجاع آخر حركة
     let lastMove = currentTurnHistory.pop();
     let sq = document.getElementById(lastMove.id);
 
-    // 1. إعادة المربع بصرياً (إغلاق)
     if (sq) {
         sq.classList.remove('open', 'shatter');
         sq.style.opacity = '1';
     }
 
-    // 2. استعادة السكور الأصلي
     teams[lastMove.teamIdx].score = lastMove.scoreBefore;
 
-    // 3. تحديث الدور
     currentTeamIdx = lastMove.teamIdx;
 
-    // 4. حذف الحركة من السجل المؤقت للجمع
     if (turnPicks.length > 0) {
         turnPicks.pop();
     }
 
-    // 5. تحديث الشاشة فوراً
     updateSum();
     renderTeams();
 }
@@ -209,10 +189,9 @@ function calculateTotal(picks) {
     let multiplier = 1;
 
     picks.forEach(pick => {
-        // افترضنا أن 't' هو النوع و 'v' هي القيمة
-        if (pick.t === 'n') { // 'n' تعني Number
+        if (pick.t === 'n') {
             sum += pick.v;
-        } else if (pick.t === 'm') { // 'm' تعني Multiplier
+        } else if (pick.t === 'm') {
             sum *= pick.v; 
         }
     });
@@ -230,19 +209,14 @@ function updateSum() {
     
     turnPicks.forEach((p) => { 
         if (p.t === 'n') {
-            // إضافة قيمة الرقم للمجموع
             total += p.v; 
         } else if (p.t === 'x') {
-            // منطق المضاعف:
-            // إذا كان المجموع 0، نتركه 0 (لأن 0 × أي شيء = 0)
-            // إذا كان المجموع أكثر من 0، نضربه في قيمة المضاعف (p.v)
             if (total > 0) {
                 total *= p.v;
             }
         }
     }); 
     
-    // تحديث الشاشة
     const sumDisplay = document.getElementById('currentSum');
     if (sumDisplay) {
         sumDisplay.innerText = total;
@@ -260,13 +234,10 @@ function generateInputs() {
         input.id = `t${i}`;
         input.className = 'team-input';
         
-        // هنا جعلناها فارغة تماماً (بدون placeholder أو value مسبق)
         input.value = ''; 
         
-        // ربطها بالقائمة المنسدلة
         input.setAttribute('list', 'namesList'); 
         
-        // تعديل بسيط: عند الضغط داخل الخانة، نقوم بتحديد النص إذا كان موجوداً ليسهل مسحه أو الكتابة فوقه
         input.onclick = function() { this.select(); };
         
         input.style.marginBottom = '10px';
@@ -276,26 +247,18 @@ function generateInputs() {
 function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 function tryFS() { if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{}); }
 function startNewGame() {
-    function startNewGame() {
-    // السطرين هذول هما مفتاح الحل لمشاكل هواوي والتعليق:
     const grid = document.getElementById('gameGrid');
     grid.innerHTML = ''; 
     grid.style.display = 'none'; 
     grid.offsetHeight; 
     grid.style.display = 'grid'; 
 
-    // ... (باقي كودك الموجود في الصورة) ...
-}
-    console.log("جارٍ إعادة ضبط اللعبة بالكامل...");
-
-    // 1. تصفير المتغيرات العامة (إعادة ضبط الذاكرة)
     currentTurnHistory = [];
     turnPicks = [];
     isProcessing = false;
-    currentTeamIdx = 0; // دائماً نبدأ من الفريق الأول
+    currentTeamIdx = 0; 
     ballsCount = parseInt(document.getElementById('bombCountSel').value) || 2;
 
-    // 2. تصفير سكور الفرق وإعادة ضبط الواجهة
     const names = []; 
     let teamCount = document.getElementById('teamCountSel').value || 2;
     for(let i=1; i<=teamCount; i++) {
@@ -304,16 +267,12 @@ function startNewGame() {
     }
     teams = names.map((name, i) => ({id: i, score: 0, name: name})); 
 
-    // 3. إعادة تحديث عداد القنابل البصري
     document.querySelectorAll('.ball').forEach((b, idx) => {
         b.style.display = (idx < ballsCount) ? 'block' : 'none';
     });
 
-    // 4. بناء شبكة جديدة كلياً
-    // هذا السطر يمسح الـ Grid القديم ويبني واحداً جديداً بالكامل
     setupGrid(parseInt(document.getElementById('gridSizeSel').value) || 40, ballsCount); 
 
-    // 5. إغلاق القائمة وبدء العمل
     document.getElementById('settingsModal').style.display = 'none'; 
     saveNamesToStorage();
     renderTeams(); 
@@ -326,119 +285,6 @@ function renderTeams() { const container = document.getElementById('teamsList');
     </div>`).join(''); }
     
 function setupGrid(total, bombs) {
-    
-    const grid = document.getElementById('gameGrid');
-    grid.innerHTML = '';
-    grid.style.display = 'none'; 
-    grid.offsetHeight; 
-    grid.style.display = 'grid'; 
-
-    isProcessing = false; 
-    turnPicks = []; 
-    currentTurnHistory = [];
-    
-    let pool = []; 
-
-    // --- 1. تجهيز محتويات الشبكة حسب النمط ---
-    if (total == 40) {
-        let bombQty = bombs;
-        for(let i = 0; i < bombQty; i++) pool.push({t: 'b', v: 0, c: 'bg-white-special'});
-        for(let i = 0; i < 3; i++) pool.push({t: 'x', v: 2, c: 'bg-white-special'});
-        for(let i = 0; i < 2; i++) pool.push({t: 'x', v: 3, c: 'bg-white-special'});
-        
-        let poolNumbers = [...goldenPack40]; 
-        let needed = total - pool.length;
-        for(let i = 0; i < needed; i++) {
-            let randomIndex = Math.floor(Math.random() * poolNumbers.length);
-            pool.push(poolNumbers.splice(randomIndex, 1)[0]);
-        }
-    } 
-    else if (total == 25) {
-        pool.push({t: 'b', v: 0, c: 'bg-white-special'}); 
-        pool.push({t: 'x', v: 2, c: 'bg-white-special'}); 
-        pool.push({t: 'x', v: 3, c: 'bg-white-special'}); 
-        
-        const colors = ['bg-red', 'bg-green', 'bg-blue', 'bg-yellow', 'bg-purple'];
-        let standardPool = [];
-        for (let v = 1; v <= 9; v++) {
-            colors.forEach(c => standardPool.push({t: 'n', v: v, c: c}));
-        }
-        shuffleArray(standardPool);
-        
-        let neededNumbers = total - pool.length;
-        for(let i = 0; i < neededNumbers; i++) {
-            pool.push(standardPool[i % standardPool.length]);
-        }
-    }
-    else {
-        let bombQty = bombs;
-        for(let i = 0; i < bombQty; i++) pool.push({t: 'b', v: 0, c: 'bg-white-special'});
-        
-        const colors = ['bg-red', 'bg-green', 'bg-blue', 'bg-yellow', 'bg-purple'];
-        let standardPool = [];
-        for (let v = 1; v <= 9; v++) {
-            colors.forEach(c => standardPool.push({t: 'n', v: v, c: c}));
-        }
-        shuffleArray(standardPool);
-        
-        let neededNumbers = total - pool.length;
-        for(let i = 0; i < neededNumbers; i++) {
-            pool.push(standardPool[i % standardPool.length]);
-        }
-    }
-
-    // --- 2. خوارزمية التوزيع الذكي (المشطوف) لمنع التكدس ---
-    // بدلاً من الخلط العشوائي الكامل الذي يصنع تكتلات، نقوم بترتيب العناصر
-    // بحيث لا يتجاور عنصران يحملان نفس القيمة أو اللون أفقياً أو عمودياً قدر الإمكان.
-    let organizedPool = [];
-    let remaining = [...pool];
-    
-    while(remaining.length > 0) {
-        // نختار عنصراً لا يشبه آخر عنصر تم إضافته للمصفوفة المنظمة إن أمكن
-        let bestIndex = 0;
-        let lastAdded = organizedPool[organizedPool.length - 1];
-        
-        if (lastAdded) {
-            for (let i = 0; i < remaining.length; i++) {
-                let candidate = remaining[i];
-                // تفضيل العناصر المختلفة كلياً عن الجار الأخير
-                if (candidate.v !== lastAdded.v && candidate.c !== lastAdded.c) {
-                    bestIndex = i;
-                    break;
-                }
-            }
-        }
-        organizedPool.push(remaining.splice(bestIndex, 1)[0]);
-    }
-    
-    pool = organizedPool;
-
-    // --- 3. رسم الشبكة ---
-    pool.forEach((d, i) => {
-        const sq = document.createElement('div');
-        sq.className = 'square';
-        sq.id = 'sq-' + i;
-        sq.innerHTML = `<span class="outer-num">${i+1}</span><div class="inner-face ${d.c}">${(d.t==='b'?'💣':(d.t==='x'?'x'+d.v:d.v))}</div>`;
-        
-        sq.onclick = () => {
-            if(isProcessing || sq.classList.contains('open')) return;
-            sq.classList.add('open');
-            currentTurnHistory.push({ id: sq.id, data: d, teamIdx: currentTeamIdx, scoreBefore: teams[currentTeamIdx].score });
-            if(d.t === 'b') { isProcessing = true; setTimeout(() => triggerExplosion(), 400); }
-            else if(turnPicks.some(p => (p.c === d.c && p.t === 'n' && d.t === 'n') || (p.v === d.v && p.t === 'n' && d.t === 'n'))) {
-                isProcessing = true; turnPicks = []; setTimeout(resetTurn, 1000);
-            } else { turnPicks.push(d); updateSum(); }
-        };
-        grid.appendChild(sq);
-    });
-
-    // (مؤقت للاختبار: يمكنك حذفه لاحقاً)
-    setTimeout(() => {
-        document.querySelectorAll('.square').forEach(sq => sq.classList.add('open'));
-    }, 500);
-}
-function setupGrid(total, bombs) {
-    
     const grid = document.getElementById('gameGrid');
     grid.innerHTML = '';
     grid.style.display = 'none'; 
@@ -454,33 +300,35 @@ function setupGrid(total, bombs) {
     let gridMatrix = Array(rows).fill().map(() => Array(cols).fill(null));
     const colors = ['bg-red', 'bg-green', 'bg-blue', 'bg-yellow', 'bg-purple'];
 
-    // --- 1. تقسيم اللوحة إلى 4 أرباع هندسية دقيقة ومتساوية ---
     let midR = Math.floor(rows / 2);
     let midC = Math.floor(cols / 2);
     let sectors = [
-        { rMin: 0, rMax: midR, cMin: 0, cMax: midC },          // الربع الأعلى-اليسار
-        { rMin: 0, rMax: midR, cMin: midC, cMax: cols },      // الربع الأعلى-اليمين
-        { rMin: midR, rMax: rows, cMin: 0, cMax: midC },      // الربع الأسفل-اليسار
-        { rMin: midR, rMax: rows, cMin: midC, cMax: cols }     // الربع الأسفل-اليمين
+        { rMin: 0, rMax: midR, cMin: 0, cMax: midC },          
+        { rMin: 0, rMax: midR, cMin: midC, cMax: cols },      
+        { rMin: midR, rMax: rows, cMin: 0, cMax: midC },      
+        { rMin: midR, rMax: rows, cMin: midC, cMax: cols }    
     ];
 
-    // --- 2. تجهيز العناصر الخاصة بدقة حسب النمط (الـ 25 بقنبلة واحدة ومضاعفين، والـ 40 حسب المطلوب) ---
     let specialItems = [];
     
     if (total == 40) {
-        let bombQty = bombs; // القنابل حسب إعدادات نمط 40
+        let bombQty = bombs; 
         for(let i = 0; i < bombQty; i++) specialItems.push({t: 'b', v: 0, c: 'bg-white-special'});
         for(let i = 0; i < 3; i++) specialItems.push({t: 'x', v: 2, c: 'bg-white-special'});
         for(let i = 0; i < 2; i++) specialItems.push({t: 'x', v: 3, c: 'bg-white-special'});
     } else if (total == 25) {
-        specialItems.push({t: 'b', v: 0, c: 'bg-white-special'}); // قنبلة واحدة فقط للنمط 25
-        specialItems.push({t: 'x', v: 2, c: 'bg-white-special'}); // مضاعف x2 واحد
-        specialItems.push({t: 'x', v: 3, c: 'bg-white-special'}); // مضاعف x3 واحد
+        specialItems.push({t: 'b', v: 0, c: 'bg-white-special'}); 
+        specialItems.push({t: 'x', v: 2, c: 'bg-white-special'}); 
+        specialItems.push({t: 'x', v: 3, c: 'bg-white-special'}); 
+    } else {
+        let bombQty = bombs;
+        for(let i = 0; i < bombQty; i++) specialItems.push({t: 'b', v: 0, c: 'bg-white-special'});
+        for(let i = 0; i < 3; i++) specialItems.push({t: 'x', v: 2, c: 'bg-white-special'});
+        for(let i = 0; i < 2; i++) specialItems.push({t: 'x', v: 3, c: 'bg-white-special'});
     }
 
     shuffleArray(specialItems);
 
-    // توزيع العناصر الخاصة على الأرباع مع نظام تباعد وفحص دقيق لعدم التكتل
     specialItems.forEach((item, itemIdx) => {
         let bestR = -1, bestC = -1;
         let maxMinDist = -1;
@@ -525,7 +373,6 @@ function setupGrid(total, bombs) {
         }
     });
 
-    // --- 3. تجهيز حزمة الأرقام والألوان الكاملة والفريدة ---
     let standardPool = [];
     if (total == 40) {
         standardPool = [...goldenPack40];
@@ -553,7 +400,6 @@ function setupGrid(total, bombs) {
     balancedNumbers = balancedNumbers.slice(0, emptyCoords.length);
     shuffleArray(balancedNumbers);
 
-    // --- 4. تعبئة الخلايا العادية بفرض قاعدة التباعد الموسع لتمكين المجازفة ---
     emptyCoords.forEach(coord => {
         let r = coord.r;
         let c = coord.c;
@@ -591,7 +437,6 @@ function setupGrid(total, bombs) {
         gridMatrix[r][c] = chosenItem || {t: 'n', v: 1, c: colors[0]};
     });
 
-    // --- 5. تحويل المصفوفة إلى مصفوفة أحادية للرسم والتفاعل ---
     let pool = [];
     for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
@@ -599,7 +444,6 @@ function setupGrid(total, bombs) {
         }
     }
 
-    // --- 6. رسم الشبكة ---
     pool.forEach((d, i) => {
         const sq = document.createElement('div');
         sq.className = 'square';
@@ -617,9 +461,7 @@ function setupGrid(total, bombs) {
         };
         grid.appendChild(sq);
     });
-
-    
-}    // ----------------------------------------   
+}   
 
 function resetTurn() { document.querySelectorAll('.square.open').forEach(el => { el.classList.add('shatter'); el.classList.remove('open'); }); turnPicks = []; currentTeamIdx = (currentTeamIdx + 1) % teams.length; updateSum(); setTimeout(() => { isProcessing = false; renderTeams(); }, 800); }
 function triggerExplosion() { if(ballsCount > 0) { document.getElementById('ball'+ballsCount).style.display = 'none'; ballsCount--; } playExplosionSound(); document.body.classList.add('shake'); const box = document.getElementById(`box-${currentTeamIdx}`); box.style.background = "#ff0000"; setTimeout(() => { teams[currentTeamIdx].score = 0; turnPicks = []; updateSum(); box.style.background = "#000"; resetTurn(); }, 1000); }
@@ -628,12 +470,9 @@ function startCycle() { if(cycleInterval) clearInterval(cycleInterval); const cy
 function openSettings() { document.getElementById('settingsModal').style.display = 'flex'; }
 generateInputs();
 function declareWinner() {
-    // ترتيب الفرق حسب السكور
     const sorted = [...teams].sort((a, b) => b.score - a.score);
-    // عرض رسالة بسيطة
     alert("انتهت اللعبة! الفائز هو: " + sorted[0].name + " بـ " + sorted[0].score + " نقطة");
 }
-// هذا المحرك مسؤول عن تبديل النصوص في المربع الوسطي
 setInterval(() => {
     const t1 = document.getElementById('text1');
     const t2 = document.getElementById('text2');
@@ -647,7 +486,7 @@ setInterval(() => {
         }
     }
 }, 3000);
-// هذه دالة جديدة تماماً، لن تحذف أي شيء قديم
+
 function calculateRealScore() {
     let total = 0;
     turnPicks.forEach((p, idx) => {
@@ -656,20 +495,16 @@ function calculateRealScore() {
     });
     return total;
 }
-// أضف هذه الدالة في نهاية منطقة السكربت:
+
 function shuffleArray(array) {
-    // استخدمنا ذاكرة عشوائية مشفرة عشان اللعبة تفقد الذاكرة تماماً
     const randomBuffer = new Uint32Array(1);
     
-    // خلط مزدوج (Double Shuffle) لضمان تدمير أي نمط سابق
     for (let k = 0; k < 2; k++) {
         for (let i = array.length - 1; i > 0; i--) {
             window.crypto.getRandomValues(randomBuffer);
-            // تحويل الرقم المشفر لنسبة عشوائية نقية 100%
             let randomFraction = randomBuffer[0] / (0xffffffff + 1);
             const j = Math.floor(randomFraction * (i + 1));
             
-            // تبديل العناصر
             [array[i], array[j]] = [array[j], array[i]];
         }
     }
@@ -677,24 +512,19 @@ function shuffleArray(array) {
 }
 
 function nextTurn() {
-    // 1. إذا كانت اللعبة تعالج حركة (مثل انفجار)، نوقف الزر
     if (isProcessing || turnPicks.length === 0) return;
 
-    // 2. حساب السكور
     let totalScore = 0;
     turnPicks.forEach((p, index) => {
         if (p.t === 'n') totalScore += p.v;
         else if (p.t === 'x' && index > 0) totalScore *= p.v;
     });
 
-    // 3. إضافة السكور للفريق الحالي
     teams[currentTeamIdx].score += totalScore;
     
-    // 4. إنهاء الدور يدوياً
-    isProcessing = true; // نمنع اللمس حتى تنتهي الحركة
-    resetTurn(); // هذه الدالة موجودة عندك وتتكفل بتغيير الدور وتصفير الـ picks
+    isProcessing = true; 
+    resetTurn(); 
 }
 </script>
 </body>
-<datalist id="namesList"></datalist>
-</html>}
+</html>
