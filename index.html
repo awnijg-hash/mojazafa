@@ -24,24 +24,25 @@
   .tufuli-neon { font-family: 'Almarai', sans-serif; color: #ff00ff; font-size: 18px; font-weight: 900; text-align: center; position: absolute; transition: opacity 1s; width: 100%; }
   
   .modal { position: fixed; inset: 0; background: radial-gradient(circle at center, rgba(252, 234, 187, 0.98) 0%, rgba(248, 181, 0, 0.98) 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 10px; }
-.modal-box { 
-    background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-    border: 4px solid #000; 
-    border-radius: 30px; 
-    width: 100%; 
-    max-width: 480px; 
-    padding: 25px; 
-    text-align: center; 
-    box-shadow: 0 0 25px rgba(184, 134, 11, 0.6);
-    position: relative;
-    overflow: hidden;
-    animation: goldShine 3s infinite alternate;
-}
+  .modal-box { 
+      background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+      border: 4px solid #000; 
+      border-radius: 30px; 
+      width: 100%; 
+      max-width: 480px; 
+      padding: 25px; 
+      text-align: center; 
+      box-shadow: 0 0 25px rgba(184, 134, 11, 0.6);
+      position: relative;
+      overflow: hidden;
+      animation: goldShine 3s infinite alternate;
+  }
 
-@keyframes goldShine {
-    0% { background-position: 0% 50%; border-color: #555; }
-    100% { background-position: 100% 50%; border-color: gold; }
-}  .modal-title { font-family: 'Almarai', sans-serif; font-size: 28px; color: #000; text-shadow: none; margin-bottom: 20px; font-weight: 900; }
+  @keyframes goldShine {
+      0% { background-position: 0% 50%; border-color: #555; }
+      100% { background-position: 100% 50%; border-color: gold; }
+  }  
+  .modal-title { font-family: 'Almarai', sans-serif; font-size: 28px; color: #000; text-shadow: none; margin-bottom: 20px; font-weight: 900; }
   
   .team-inputs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .team-input { width: 100%; padding: 10px; border-radius: 10px; border: 3px solid #000; background: #fff; color: #000; font-family: 'Habeba'; font-size: 22px; text-align: center; }
@@ -82,40 +83,43 @@
   <div class="modal-box">
     <div class="modal-title">العب بومب مع حسام</div>
     <div class="opt-row"><span>عدد الفرق:</span><select id="teamCountSel" onchange="generateInputs()"><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></div>
-<div id="teamArea" class="team-inputs-grid"></div>
+    <div id="teamArea" class="team-inputs-grid"></div>
 
-<div class="opt-row" style="margin-top:20px;">
-    <select id="gridSizeSel">
-        <option value="25">25 مربع</option>
-        <option value="40" selected>40 مربع</option> <option value="50">50 مربع</option>
-    </select>
-    <select id="bombCountSel">
-        <option value="4">4 قنابل</option>
-        <option value="3">3</option>
-        <option value="2" selected>2 قنبلة</option> <option value="5">5</option>
-    </select>
-</div>
+    <div class="opt-row" style="margin-top:20px;">
+        <select id="gridSizeSel" onchange="onGridSizeChange()">
+            <option value="25">25 مربع</option>
+            <option value="40" selected>40 مربع</option>
+            <option value="50">50 مربع</option>
+        </select>
+        <select id="bombCountSel">
+            <option value="1">1 قنبلة</option>
+            <option value="2" selected>2 قنبلة</option>
+            <option value="3">3 قنابل</option>
+            <option value="4">4 قنابل</option>
+            <option value="5">5 قنابل</option>
+        </select>
+    </div>
     <button onclick="startNewGame()" class="start-btn">ابدأ التحدي الآن</button>
   </div>
 </div>
 
 <div class="top-frame" id="p1">
   <div class="top-bar">
-    <div class="bomb-balls">
-        <div class="ball" id="ball1"></div>
-        <div class="ball" id="ball2"></div>
+    <div class="bomb-balls" id="bombBallsContainer">
+        <!-- يتم توليد النقاط الحمراء ديناميكياً حسب عدد القنابل -->
     </div>
     <div class="sum-box" id="currentSum">0</div>
-<div class="main-row">
-    <div class="neon-rect" onclick="openSettings()">إعدادات</div>
-    
-    <div class="title-center" onclick="undoSquare()" style="cursor: pointer; position: relative;">
-    <div id="text1" class="tufuli-neon" style="opacity: 1; transition: opacity 0.5s;">العب بومب<br>مع حسام</div>
-    <div id="text2" class="tufuli-neon" style="opacity: 0; transition: opacity 0.5s;">أرحبوا جميعًا<br>يا إخوان 🥰</div>
-</div>
-    
-    <div class="neon-rect" onclick="nextTurn()">اسحب</div>
-</div>    <div class="teams-row" id="teamsList"></div>
+    <div class="main-row">
+        <div class="neon-rect" onclick="openSettings()">إعدادات</div>
+        
+        <div class="title-center" onclick="undoSquare()" style="cursor: pointer; position: relative;">
+            <div id="text1" class="tufuli-neon" style="opacity: 1; transition: opacity 0.5s;">العب بومب<br>مع حسام</div>
+            <div id="text2" class="tufuli-neon" style="opacity: 0; transition: opacity 0.5s;">أرحبوا جميعًا<br>يا إخوان 🥰</div>
+        </div>
+        
+        <div class="neon-rect" onclick="nextTurn()">اسحب</div>
+    </div>
+    <div class="teams-row" id="teamsList"></div>
   </div>
 </div>
 
@@ -138,11 +142,12 @@
     {t: 'n', v: 6, c: 'bg-purple'}, {t: 'n', v: 5, c: 'bg-green'}, {t: 'n', v: 4, c: 'bg-purple'},
     {t: 'n', v: 9, c: 'bg-yellow'}
 ];
+
  let currentTurnHistory = [];  
  let lastTurnScore = 0;  
  let gameHistory = [];  
  let openedCount = 0; 
-let teams = [], currentTeamIdx = 0, turnPicks = [], isProcessing = false, audioCtx, cycleInterval, ballsCount = 2;
+ let teams = [], currentTeamIdx = 0, turnPicks = [], isProcessing = false, audioCtx, cycleInterval, ballsCount = 2;
 
 function saveNamesToStorage() {
     const names = teams.map(t => t.name);
@@ -151,62 +156,32 @@ function saveNamesToStorage() {
     localStorage.setItem('savedNames', JSON.stringify(savedNames));
     updateDataList();
 }
-function saveState() {
-    gameHistory.push({
-        teams: JSON.parse(JSON.stringify(teams)),
-        turnPicks: JSON.parse(JSON.stringify(turnPicks)),
-        currentTeamIdx: currentTeamIdx,
-        ballsCount: ballsCount,
-        openedIds: Array.from(document.querySelectorAll('.square.open')).map(el => el.id)
-    });
-}
 
-function undoSquare() {
-    if (currentTurnHistory.length === 0) return;
-
-    let lastMove = currentTurnHistory.pop();
-    let sq = document.getElementById(lastMove.id);
-
-    if (sq) {
-        sq.classList.remove('open', 'shatter');
-        sq.style.opacity = '1';
-    }
-
-    teams[lastMove.teamIdx].score = lastMove.scoreBefore;
-
-    currentTeamIdx = lastMove.teamIdx;
-
-    if (turnPicks.length > 0) {
-        turnPicks.pop();
-    }
-
-    updateSum();
-    renderTeams();
-}
-
-function calculateTotal(picks) {
-    let sum = 0;
-    let multiplier = 1;
-
-    picks.forEach(pick => {
-        if (pick.t === 'n') {
-            sum += pick.v;
-        } else if (pick.t === 'm') {
-            sum *= pick.v; 
-        }
-    });
-    return sum;
-}
 function updateDataList() {
     const savedNames = JSON.parse(localStorage.getItem('savedNames') || '[]');
     const list = document.getElementById('namesList');
     if(list) list.innerHTML = savedNames.map(n => `<option value="${n}">`).join('');
 }
-window.onload = updateDataList;
+window.onload = function() {
+    updateDataList();
+    onGridSizeChange(); // ضبط عدد القنابل الافتراضي عند التحميل
+};
+
+// تحديث تلقائي لعدد القنابل المقترح عند تغيير حجم الشبكة
+function onGridSizeChange() {
+    const gridSize = document.getElementById('gridSizeSel').value;
+    const bombSel = document.getElementById('bombCountSel');
+    if (gridSize === "25") {
+        bombSel.value = "1"; // افتراضي 25 مربع يكون 1 قنبلة
+    } else if (gridSize === "40") {
+        bombSel.value = "2"; // افتراضي 40 مربع يكون 2 قنبلة
+    } else if (gridSize === "50") {
+        bombSel.value = "3"; // افتراضي 50 مربع يكون 3 قنابل
+    }
+}
 
 function updateSum() { 
     let total = 0; 
-    
     turnPicks.forEach((p) => { 
         if (p.t === 'n') {
             total += p.v; 
@@ -233,19 +208,17 @@ function generateInputs() {
         input.type = 'text';
         input.id = `t${i}`;
         input.className = 'team-input';
-        
         input.value = ''; 
-        
         input.setAttribute('list', 'namesList'); 
-        
         input.onclick = function() { this.select(); };
-        
         input.style.marginBottom = '10px';
         area.appendChild(input);
     }
 }
+
 function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 function tryFS() { if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{}); }
+
 function startNewGame() {
     const grid = document.getElementById('gameGrid');
     grid.innerHTML = ''; 
@@ -267,9 +240,15 @@ function startNewGame() {
     }
     teams = names.map((name, i) => ({id: i, score: 0, name: name})); 
 
-    document.querySelectorAll('.ball').forEach((b, idx) => {
-        b.style.display = (idx < ballsCount) ? 'block' : 'none';
-    });
+    // تحديث وتوليد النقاط الحمراء في الأعلى حسب العدد المختار بدقة
+    const ballsContainer = document.getElementById('bombBallsContainer');
+    ballsContainer.innerHTML = '';
+    for(let i = 1; i <= ballsCount; i++) {
+        let bDiv = document.createElement('div');
+        bDiv.className = 'ball';
+        bDiv.id = 'ball' + i;
+        ballsContainer.appendChild(bDiv);
+    }
 
     setupGrid(parseInt(document.getElementById('gridSizeSel').value) || 40, ballsCount); 
 
@@ -278,105 +257,34 @@ function startNewGame() {
     renderTeams(); 
     updateSum();
 }
-function renderTeams() { const container = document.getElementById('teamsList'); container.innerHTML = teams.map((t, i) => `
+
+function renderTeams() { 
+    const container = document.getElementById('teamsList'); 
+    container.innerHTML = teams.map((t, i) => `
     <div class="team-box ${i === currentTeamIdx ? 'active' : ''}" id="box-${i}">
         <input class="t-name" value="${t.name}" onchange="teams[${i}].name = this.value">
         <input class="t-score" value="${t.score}" onchange="teams[${i}].score = parseInt(this.value)">
-    </div>`).join(''); }
+    </div>`).join(''); 
+}
     
 function setupGrid(total, bombs) {
     const grid = document.getElementById('gameGrid');
     grid.innerHTML = '';
-    grid.style.display = 'none'; 
-    grid.offsetHeight; 
-    grid.style.display = 'grid'; 
-
     isProcessing = false; 
     turnPicks = []; 
     currentTurnHistory = [];
     
-    const cols = 5; 
-    const rows = total / cols; 
-    let gridMatrix = Array(rows).fill().map(() => Array(cols).fill(null));
     const colors = ['bg-red', 'bg-green', 'bg-blue', 'bg-yellow', 'bg-purple'];
+    let pool = [];
 
-    let midR = Math.floor(rows / 2);
-    let midC = Math.floor(cols / 2);
-    let sectors = [
-        { rMin: 0, rMax: midR, cMin: 0, cMax: midC },          
-        { rMin: 0, rMax: midR, cMin: midC, cMax: cols },      
-        { rMin: midR, rMax: rows, cMin: 0, cMax: midC },      
-        { rMin: midR, rMax: rows, cMin: midC, cMax: cols }    
-    ];
+    // 1. إضافة العناصر الخاصة (القنابل والمضاعفات)
+    for(let i = 0; i < bombs; i++) pool.push({t: 'b', v: 0, c: 'bg-white-special'});
+    for(let i = 0; i < 3; i++) pool.push({t: 'x', v: 2, c: 'bg-white-special'});
+    for(let i = 0; i < 2; i++) pool.push({t: 'x', v: 3, c: 'bg-white-special'});
 
-    let specialItems = [];
-    
-    if (total == 40) {
-        let bombQty = bombs; 
-        for(let i = 0; i < bombQty; i++) specialItems.push({t: 'b', v: 0, c: 'bg-white-special'});
-        for(let i = 0; i < 3; i++) specialItems.push({t: 'x', v: 2, c: 'bg-white-special'});
-        for(let i = 0; i < 2; i++) specialItems.push({t: 'x', v: 3, c: 'bg-white-special'});
-    } else if (total == 25) {
-        specialItems.push({t: 'b', v: 0, c: 'bg-white-special'}); 
-        specialItems.push({t: 'x', v: 2, c: 'bg-white-special'}); 
-        specialItems.push({t: 'x', v: 3, c: 'bg-white-special'}); 
-    } else {
-        let bombQty = bombs;
-        for(let i = 0; i < bombQty; i++) specialItems.push({t: 'b', v: 0, c: 'bg-white-special'});
-        for(let i = 0; i < 3; i++) specialItems.push({t: 'x', v: 2, c: 'bg-white-special'});
-        for(let i = 0; i < 2; i++) specialItems.push({t: 'x', v: 3, c: 'bg-white-special'});
-    }
-
-    shuffleArray(specialItems);
-
-    specialItems.forEach((item, itemIdx) => {
-        let bestR = -1, bestC = -1;
-        let maxMinDist = -1;
-        let targetSec = sectors[itemIdx % sectors.length]; 
-
-        let candidateSlots = [];
-        for (let r = targetSec.rMin; r < targetSec.rMax; r++) {
-            for (let c = targetSec.cMin; c < targetSec.cMax; c++) {
-                if (gridMatrix[r][c] === null) candidateSlots.push({r, c});
-            }
-        }
-        
-        if (candidateSlots.length === 0) {
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    if (gridMatrix[r][c] === null) candidateSlots.push({r, c});
-                }
-            }
-        }
-
-        shuffleArray(candidateSlots);
-
-        candidateSlots.forEach(slot => {
-            let minDistToOther = Infinity;
-            for (let pr = 0; pr < rows; pr++) {
-                for (let pc = 0; pc < cols; pc++) {
-                    if (gridMatrix[pr][pc] && gridMatrix[pr][pc].c === 'bg-white-special') {
-                        let dist = Math.abs(slot.r - pr) + Math.abs(slot.c - pc);
-                        if (dist < minDistToOther) minDistToOther = dist;
-                    }
-                }
-            }
-            if (minDistToOther > maxMinDist) {
-                maxMinDist = minDistToOther;
-                bestR = slot.r;
-                bestC = slot.c;
-            }
-        });
-
-        if (bestR !== -1 && bestC !== -1) {
-            gridMatrix[bestR][bestC] = item;
-        }
-    });
-
-    let standardPool = [];
-    if (total == 40) {
-        standardPool = [...goldenPack40];
-    } else {
+    // 2. تعبئة باقي العناصر بالبيانات العادية حسب حجم الشبكة
+    let standardPool = (total == 40) ? [...goldenPack40] : [];
+    if (total != 40) {
         for (let v = 1; v <= 9; v++) {
             colors.forEach(c => standardPool.push({t: 'n', v: v, c: c}));
         }
@@ -384,65 +292,18 @@ function setupGrid(total, bombs) {
     
     shuffleArray(standardPool);
 
-    let emptyCoords = [];
-    for(let r = 0; r < rows; r++) {
-        for(let c = 0; c < cols; c++) {
-            if(gridMatrix[r][c] === null) emptyCoords.push({r, c});
+    while(pool.length < total) {
+        if(standardPool.length === 0) {
+            standardPool = [...goldenPack40];
+            shuffleArray(standardPool);
         }
+        pool.push(standardPool.pop());
     }
 
-    let balancedNumbers = [];
-    while(balancedNumbers.length < emptyCoords.length) {
-        let temp = [...standardPool];
-        shuffleArray(temp);
-        balancedNumbers = balancedNumbers.concat(temp);
-    }
-    balancedNumbers = balancedNumbers.slice(0, emptyCoords.length);
-    shuffleArray(balancedNumbers);
-
-    emptyCoords.forEach(coord => {
-        let r = coord.r;
-        let c = coord.c;
-        let chosenItem = null;
-        let bestIndex = 0;
-        let minPenalty = Infinity;
-        
-        for (let i = 0; i < balancedNumbers.length; i++) {
-            let candidate = balancedNumbers[i];
-            let penalty = 0;
-            
-            for (let dr = -2; dr <= 2; dr++) {
-                for (let dc = -2; dc <= 2; dc++) {
-                    if (dr === 0 && dc === 0) continue;
-                    let nr = r + dr;
-                    let nc = c + dc;
-                    if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
-                        let neighbor = gridMatrix[nr][nc];
-                        if (neighbor && neighbor.t === 'n') {
-                            if (neighbor.v === candidate.v) penalty += (3 - Math.max(Math.abs(dr), Math.abs(dc)));
-                            if (neighbor.c === candidate.c) penalty += (2 - Math.max(Math.abs(dr), Math.abs(dc)));
-                        }
-                    }
-                }
-            }
-
-            if (penalty < minPenalty) {
-                minPenalty = penalty;
-                bestIndex = i;
-                if (penalty === 0) break;
-            }
-        }
-
-        chosenItem = balancedNumbers.splice(bestIndex, 1)[0];
-        gridMatrix[r][c] = chosenItem || {t: 'n', v: 1, c: colors[0]};
-    });
-
-    let pool = [];
-    for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-            pool.push(gridMatrix[r][c]);
-        }
-    }
+    // 3. خلط نهائي شامل للمصفوفة الكاملة بـ 3 دورات عشوائية تامة لتجنب تمركز العناصر
+    shuffleArray(pool);
+    shuffleArray(pool);
+    shuffleArray(pool);
 
     pool.forEach((d, i) => {
         const sq = document.createElement('div');
@@ -454,25 +315,91 @@ function setupGrid(total, bombs) {
             if(isProcessing || sq.classList.contains('open')) return;
             sq.classList.add('open');
             currentTurnHistory.push({ id: sq.id, data: d, teamIdx: currentTeamIdx, scoreBefore: teams[currentTeamIdx].score });
-            if(d.t === 'b') { isProcessing = true; setTimeout(() => triggerExplosion(), 400); }
-            else if(turnPicks.some(p => (p.c === d.c && p.t === 'n' && d.t === 'n') || (p.v === d.v && p.t === 'n' && d.t === 'n'))) {
-                isProcessing = true; turnPicks = []; setTimeout(resetTurn, 1000);
-            } else { turnPicks.push(d); updateSum(); }
+            
+            if(d.t === 'b') { 
+                isProcessing = true; 
+                setTimeout(() => triggerExplosion(), 400); 
+            } else if(turnPicks.some(p => (p.c === d.c && p.t === 'n' && d.t === 'n') || (p.v === d.v && p.t === 'n' && d.t === 'n'))) {
+                isProcessing = true; 
+                turnPicks = []; 
+                setTimeout(resetTurn, 1000);
+            } else { 
+                turnPicks.push(d); 
+                updateSum(); 
+            }
         };
         grid.appendChild(sq);
     });
 }   
 
-function resetTurn() { document.querySelectorAll('.square.open').forEach(el => { el.classList.add('shatter'); el.classList.remove('open'); }); turnPicks = []; currentTeamIdx = (currentTeamIdx + 1) % teams.length; updateSum(); setTimeout(() => { isProcessing = false; renderTeams(); }, 800); }
-function triggerExplosion() { if(ballsCount > 0) { document.getElementById('ball'+ballsCount).style.display = 'none'; ballsCount--; } playExplosionSound(); document.body.classList.add('shake'); const box = document.getElementById(`box-${currentTeamIdx}`); box.style.background = "#ff0000"; setTimeout(() => { teams[currentTeamIdx].score = 0; turnPicks = []; updateSum(); box.style.background = "#000"; resetTurn(); }, 1000); }
-function playExplosionSound() { if (!audioCtx) return; const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime); gain.gain.setValueAtTime(0.5, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.5); }
-function startCycle() { if(cycleInterval) clearInterval(cycleInterval); const cycle = () => { document.getElementById('text1').style.opacity = '0'; document.getElementById('text2').style.opacity = '1'; setTimeout(() => { document.getElementById('text2').style.opacity = '0'; document.getElementById('text1').style.opacity = '1'; }, 10000); }; cycle(); cycleInterval = setInterval(cycle, 50000); }
+function undoSquare() {
+    if (currentTurnHistory.length === 0) return;
+
+    let lastMove = currentTurnHistory.pop();
+    let sq = document.getElementById(lastMove.id);
+
+    if (sq) {
+        sq.classList.remove('open', 'shatter');
+        sq.style.opacity = '1';
+    }
+
+    teams[lastMove.teamIdx].score = lastMove.scoreBefore;
+    currentTeamIdx = lastMove.teamIdx;
+
+    if (turnPicks.length > 0) {
+        turnPicks.pop();
+    }
+
+    updateSum();
+    renderTeams();
+}
+
+function resetTurn() { 
+    document.querySelectorAll('.square.open').forEach(el => { el.classList.add('shatter'); el.classList.remove('open'); }); 
+    turnPicks = []; 
+    currentTeamIdx = (currentTeamIdx + 1) % teams.length; 
+    updateSum(); 
+    setTimeout(() => { isProcessing = false; renderTeams(); }, 800); 
+}
+
+function triggerExplosion() { 
+    if(ballsCount > 0) { 
+        const targetBall = document.getElementById('ball' + ballsCount);
+        if (targetBall) {
+            targetBall.style.display = 'none'; 
+        }
+        ballsCount--; 
+    } 
+    playExplosionSound(); 
+    document.body.classList.add('shake'); 
+    const box = document.getElementById(`box-${currentTeamIdx}`); 
+    box.style.background = "#ff0000"; 
+    setTimeout(() => { 
+        teams[currentTeamIdx].score = 0; 
+        turnPicks = []; 
+        updateSum(); 
+        box.style.background = "#000"; 
+        resetTurn(); 
+    }, 1000); 
+}
+
+function playExplosionSound() { 
+    if (!audioCtx) return; 
+    const osc = audioCtx.createOscillator(); 
+    const gain = audioCtx.createGain(); 
+    osc.type = 'sawtooth'; 
+    osc.frequency.setValueAtTime(150, audioCtx.currentTime); 
+    gain.gain.setValueAtTime(0.5, audioCtx.currentTime); 
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5); 
+    osc.connect(gain); 
+    gain.connect(audioCtx.destination); 
+    osc.start(); 
+    osc.stop(audioCtx.currentTime + 0.5); 
+}
+
 function openSettings() { document.getElementById('settingsModal').style.display = 'flex'; }
 generateInputs();
-function declareWinner() {
-    const sorted = [...teams].sort((a, b) => b.score - a.score);
-    alert("انتهت اللعبة! الفائز هو: " + sorted[0].name + " بـ " + sorted[0].score + " نقطة");
-}
+
 setInterval(() => {
     const t1 = document.getElementById('text1');
     const t2 = document.getElementById('text2');
@@ -487,26 +414,13 @@ setInterval(() => {
     }
 }, 3000);
 
-function calculateRealScore() {
-    let total = 0;
-    turnPicks.forEach((p, idx) => {
-        if (p.t === 'n') total += p.v;
-        else if (p.t === 'x' && idx > 0) total *= p.v;
-    });
-    return total;
-}
-
 function shuffleArray(array) {
     const randomBuffer = new Uint32Array(1);
-    
-    for (let k = 0; k < 2; k++) {
-        for (let i = array.length - 1; i > 0; i--) {
-            window.crypto.getRandomValues(randomBuffer);
-            let randomFraction = randomBuffer[0] / (0xffffffff + 1);
-            const j = Math.floor(randomFraction * (i + 1));
-            
-            [array[i], array[j]] = [array[j], array[i]];
-        }
+    for (let i = array.length - 1; i > 0; i--) {
+        window.crypto.getRandomValues(randomBuffer);
+        let randomFraction = randomBuffer[0] / (0xffffffff + 1);
+        const j = Math.floor(randomFraction * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
 }
@@ -521,7 +435,6 @@ function nextTurn() {
     });
 
     teams[currentTeamIdx].score += totalScore;
-    
     isProcessing = true; 
     resetTurn(); 
 }
