@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>تحدي البومب - التصميم الأصلي مع تخزين الأسماء والفاصل الإعلاني</title>
+<title>تحدي البومب - التصميم الأصلي مع تخزين الأسماء</title>
 <style>
   @import url('https://fonts.cdnfonts.com/css/habeba');
   @import url('https://fonts.googleapis.com/css2?family=Almarai:wght@800&display=swap');
@@ -73,22 +73,12 @@
   @keyframes shatterAnim { 0% { transform: rotateY(180deg) scale(1); opacity: 1; } 100% { transform: rotateY(180deg) scale(0) rotate(20deg); opacity: 0; } }
   .shake { animation: shakeAnim 0.8s both; }
   @keyframes shakeAnim { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } }
-
-  /* ستايل الفاصل الإعلاني */
-  .ad-modal { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 15px; }
-  .ad-box { background: linear-gradient(135deg, #1a1a2e, #16213e); border: 4px solid #00f2ff; border-radius: 25px; width: 100%; max-width: 500px; padding: 25px; text-align: center; box-shadow: 0 0 30px #00f2ff; }
-  .ad-title { font-family: 'Almarai', sans-serif; font-size: 26px; color: #00f2ff; margin-bottom: 15px; font-weight: 900; }
-  .ad-question { font-size: 32px; color: #fff; margin: 20px 0; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 12px; border: 2px solid gold; font-weight: 900; }
-  .ad-input { width: 100%; padding: 12px; border-radius: 10px; border: 3px solid #00f2ff; background: #fff; color: #000; font-family: 'Habeba'; font-size: 26px; text-align: center; margin-bottom: 15px; }
-  .ad-btn { width: 100%; padding: 15px; background: #00f2ff; color: #000; font-weight: 900; font-size: 22px; border-radius: 12px; border: none; font-family: 'Habeba'; cursor: pointer; box-shadow: 0 4px 0 #0088aa; }
-  .ad-timer { font-size: 20px; color: gold; margin-top: 10px; font-weight: 900; }
 </style>
 </head>
 <body onclick="initAudio(); tryFS();">
 
 <datalist id="namesList"></datalist>
 
-<!-- نافذة الإعدادات الرئيسية -->
 <div class="modal" id="settingsModal" style="display:flex;">
   <div class="modal-box">
     <div class="modal-title">العب بومب مع حسام</div>
@@ -110,18 +100,6 @@
         </select>
     </div>
     <button onclick="startNewGame()" class="start-btn">ابدأ التحدي الآن</button>
-  </div>
-</div>
-
-<!-- نافذة الفاصل الإعلاني (أبو 5 مسائل) -->
-<div class="ad-modal" id="adModal">
-  <div class="ad-box">
-    <div class="ad-title" id="adHeaderTitle">🎁 استراحة إعلانية وتحدي سريع!</div>
-    <div style="font-size: 18px; color: #ccc; margin-bottom: 5px;">أجب بشكل صحيح لتعزيز رصيدك أو حماية فريقك</div>
-    <div class="ad-question" id="adQuestionText">جاري تحميل المسألة...</div>
-    <input type="number" id="adAnswerInput" class="ad-input" placeholder="اكتب الناتج هنا..." autocomplete="off">
-    <button onclick="checkAdAnswer()" class="ad-btn">تحقق من الإجابة</button>
-    <div class="ad-timer" id="adTimerText">الوقت باقي: 30 ثانية</div>
   </div>
 </div>
 
@@ -165,83 +143,11 @@
     {t: 'n', v: 9, c: 'bg-yellow'}
 ];
 
-  let currentTurnHistory = [];  
-  let lastTurnScore = 0;  
-  let gameHistory = [];  
-  let openedCount = 0; 
-  let teams = [], currentTeamIdx = 0, turnPicks = [], isProcessing = false, audioCtx, cycleInterval, ballsCount = 2;
-
-  // متغيرات نظام الفاصل الإعلاني (أبو 5 مسائل)
-  let adMoveCounter = 0;
-  let currentAdCorrectAnswer = 0;
-  let adTimerInterval = null;
-  let adTimeLeft = 30;
-
-  // قائمة المسائل الـ 5 الممتعة
-  const adQuestionsList = [
-      { q: "ما هو حاصل ضرب 7 × 8 ؟", a: 56 },
-      { q: "كم الناتج: 45 ÷ 5 + 10 ؟", a: 19 },
-      { q: "إذا كان لديك 36 تفاحة ووزعتها بالتساوي على 4 أشخاص، كم يأخذ كل شخص؟", a: 9 },
-      { q: "ما هو الناتج: 12 + 15 - 7 ؟", a: 20 },
-      { q: "كم نتيجة: 9 × 9 - 11 ؟", a: 70 }
-  ];
-
-  function triggerAdBreakIfNeeded() {
-      adMoveCounter++;
-      if (adMoveCounter >= 5) {
-          adMoveCounter = 0; // إعادة ضبط العداد
-          showAdModal();
-      }
-  }
-
-  function showAdModal() {
-      const modal = document.getElementById('adModal');
-      const qText = document.getElementById('adQuestionText');
-      const input = document.getElementById('adAnswerInput');
-      
-      // اختيار مسألة عشوائية من الـ 5 مسائل
-      const randomProb = adQuestionsList[Math.floor(Math.random() * adQuestionsList.length)];
-      qText.innerText = randomProb.q;
-      currentAdCorrectAnswer = randomProb.a;
-      input.value = '';
-      
-      modal.style.display = 'flex';
-      startAdTimer();
-  }
-
-  function startAdTimer() {
-      adTimeLeft = 30;
-      const timerText = document.getElementById('adTimerText');
-      timerText.innerText = `الوقت باقي: ${adTimeLeft} ثانية`;
-      
-      if (adTimerInterval) clearInterval(adTimerInterval);
-      
-      adTimerInterval = setInterval(() => {
-          adTimeLeft--;
-          timerText.innerText = `الوقت باقي: ${adTimeLeft} ثانية`;
-          if (adTimeLeft <= 0) {
-              clearInterval(adTimerInterval);
-              closeAdModal();
-          }
-      }, 1000);
-  }
-
-  function checkAdAnswer() {
-      const userAns = parseInt(document.getElementById('adAnswerInput').value);
-      if (userAns === currentAdCorrectAnswer) {
-          alert('إجابة صحيحة! أحسنت يا بطل 🎉 مكافأة 20 نقطة لفريقك!');
-          teams[currentTeamIdx].score += 20;
-          renderTeams();
-      } else {
-          alert('إجابة غير صائبة! حظاً أوفر في المرة القادمة.');
-      }
-      clearInterval(adTimerInterval);
-      closeAdModal();
-  }
-
-  function closeAdModal() {
-      document.getElementById('adModal').style.display = 'none';
-  }
+ let currentTurnHistory = [];  
+ let lastTurnScore = 0;  
+ let gameHistory = [];  
+ let openedCount = 0; 
+ let teams = [], currentTeamIdx = 0, turnPicks = [], isProcessing = false, audioCtx, cycleInterval, ballsCount = 2;
 
 function saveNamesToStorage() {
     const names = teams.map(t => t.name);
@@ -258,18 +164,19 @@ function updateDataList() {
 }
 window.onload = function() {
     updateDataList();
-    onGridSizeChange(); 
+    onGridSizeChange(); // ضبط عدد القنابل الافتراضي عند التحميل
 };
 
+// تحديث تلقائي لعدد القنابل المقترح عند تغيير حجم الشبكة
 function onGridSizeChange() {
     const gridSize = document.getElementById('gridSizeSel').value;
     const bombSel = document.getElementById('bombCountSel');
     if (gridSize === "25") {
-        bombSel.value = "1"; 
+        bombSel.value = "1"; // افتراضي 25 مربع يكون 1 قنبلة
     } else if (gridSize === "40") {
-        bombSel.value = "2"; 
+        bombSel.value = "2"; // افتراضي 40 مربع يكون 2 قنبلة
     } else if (gridSize === "50") {
-        bombSel.value = "3"; 
+        bombSel.value = "3"; // افتراضي 50 مربع يكون 3 قنابل
     }
 }
 
@@ -323,7 +230,6 @@ function startNewGame() {
     turnPicks = [];
     isProcessing = false;
     currentTeamIdx = 0; 
-    adMoveCounter = 0; // تصفير العداد مع بداية لعبة جديدة
     ballsCount = parseInt(document.getElementById('bombCountSel').value) || 2;
 
     const names = []; 
@@ -334,6 +240,7 @@ function startNewGame() {
     }
     teams = names.map((name, i) => ({id: i, score: 0, name: name})); 
 
+    // تحديث وتوليد النقاط الحمراء في الأعلى حسب العدد المختار بدقة
     const ballsContainer = document.getElementById('bombBallsContainer');
     ballsContainer.innerHTML = '';
     for(let i = 1; i <= ballsCount; i++) {
@@ -370,10 +277,12 @@ function setupGrid(total, bombs) {
     const colors = ['bg-red', 'bg-green', 'bg-blue', 'bg-yellow', 'bg-purple'];
     let pool = [];
 
+    // 1. إضافة العناصر الخاصة (القنابل والمضاعفات)
     for(let i = 0; i < bombs; i++) pool.push({t: 'b', v: 0, c: 'bg-white-special'});
     for(let i = 0; i < 3; i++) pool.push({t: 'x', v: 2, c: 'bg-white-special'});
     for(let i = 0; i < 2; i++) pool.push({t: 'x', v: 3, c: 'bg-white-special'});
 
+    // 2. تعبئة باقي العناصر بالبيانات العادية حسب حجم الشبكة
     let standardPool = (total == 40) ? [...goldenPack40] : [];
     if (total != 40) {
         for (let v = 1; v <= 9; v++) {
@@ -391,6 +300,7 @@ function setupGrid(total, bombs) {
         pool.push(standardPool.pop());
     }
 
+    // 3. خلط نهائي شامل للمصفوفة الكاملة بـ 3 دورات عشوائية تامة لتجنب تمركز العناصر
     shuffleArray(pool);
     shuffleArray(pool);
     shuffleArray(pool);
@@ -420,7 +330,7 @@ function setupGrid(total, bombs) {
         };
         grid.appendChild(sq);
     });
-}  
+}   
 
 function undoSquare() {
     if (currentTurnHistory.length === 0) return;
@@ -449,11 +359,7 @@ function resetTurn() {
     turnPicks = []; 
     currentTeamIdx = (currentTeamIdx + 1) % teams.length; 
     updateSum(); 
-    setTimeout(() => { 
-        isProcessing = false; 
-        renderTeams(); 
-        triggerAdBreakIfNeeded(); // فحص إظهار الفاصل الإعلاني عند انتهاء الدور
-    }, 800); 
+    setTimeout(() => { isProcessing = false; renderTeams(); }, 800); 
 }
 
 function triggerExplosion() { 
