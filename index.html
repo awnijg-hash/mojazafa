@@ -52,7 +52,7 @@
   .start-btn { width: 100%; padding: 18px; background: #000; color: gold; font-weight: 900; font-size: 24px; border-radius: 15px; border: 2px solid gold; font-family: 'Habeba'; cursor: pointer; margin-top: 10px; box-shadow: 0 5px 0 #333; transition: 0.1s; }
   .start-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #333; }
   
-  /* تنسيقات الفاصل التعليمي التفاعلي (5 مسائل مع إشارة x) */
+  /* تنسيقات الفاصل التعليمي التفاعلي (5 مسائل مع إشارة x صريحة) */
   .edu-overlay { position: fixed; inset: 0; background: rgba(11, 15, 25, 0.95); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 15px; direction: rtl; }
   .edu-box { background: linear-gradient(135deg, #1e293b, #0f172a); border: 4px solid #38bdf8; border-radius: 25px; width: 100%; max-width: 500px; padding: 20px; text-align: center; box-shadow: 0 0 35px rgba(56, 189, 248, 0.4); position: relative; max-height: 90vh; overflow-y: auto; }
   .edu-header { font-family: 'Almarai', sans-serif; font-size: 20px; color: #38bdf8; margin-bottom: 8px; font-weight: 900; }
@@ -117,7 +117,7 @@
   </div>
 </div>
 
-<!-- شاشة الفاصل التعليمي التفاعلي (5 مسائل مع إشارة x) -->
+<!-- شاشة الفاصل التعليمي التفاعلي (5 مسائل مع إشارة x واضحة) -->
 <div class="edu-overlay" id="eduOverlay">
   <div class="edu-box">
     <div class="edu-header" id="eduLessonTitle">الدرس الثاني: عمليات الحساب والضرب</div>
@@ -249,7 +249,7 @@ function generateInputs() {
 function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 function tryFS() { if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{}); }
 
-// تشغيل الفاصل التعليمي وتوليد 5 مسائل مع إشارة الضرب x
+// تشغيل الفاصل التعليمي وتوليد 5 مسائل مع إشارة الضرب x بوضوح
 function triggerEduChallenge() {
     document.getElementById('settingsModal').style.display = 'none';
     const overlay = document.getElementById('eduOverlay');
@@ -266,7 +266,6 @@ function triggerEduChallenge() {
         let n1 = Math.floor(Math.random() * 10) + 1;
         let n2 = Math.floor(Math.random() * 10) + 1;
         
-        // تنويع العمليات (جمع، طرح، ضرب) واستخدام x للضرب
         let opType = Math.floor(Math.random() * 3); // 0: جمع, 1: طرح, 2: ضرب
         let qText = "";
         let ansVal = 0;
@@ -279,7 +278,7 @@ function triggerEduChallenge() {
             qText = `${n1} - ${n2} =`;
             ansVal = n1 - n2;
         } else {
-            // عملية ضرب باستخدام علامة x بدلاً من النقطة
+            // استخدام علامة x صريحة وواضحة لعملية الضرب
             qText = `${n1} x ${n2} =`;
             ansVal = n1 * n2;
         }
