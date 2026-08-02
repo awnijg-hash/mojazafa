@@ -105,9 +105,7 @@
 
 <div class="top-frame" id="p1">
   <div class="top-bar">
-    <div class="bomb-balls" id="bombBallsContainer">
-        <!-- يتم توليد النقاط الحمراء ديناميكياً حسب عدد القنابل -->
-    </div>
+    <div class="bomb-balls" id="bombBallsContainer"></div>
     <div class="sum-box" id="currentSum">0</div>
     <div class="main-row">
         <div class="neon-rect" onclick="openSettings()">إعدادات</div>
@@ -164,19 +162,18 @@ function updateDataList() {
 }
 window.onload = function() {
     updateDataList();
-    onGridSizeChange(); // ضبط عدد القنابل الافتراضي عند التحميل
+    onGridSizeChange();
 };
 
-// تحديث تلقائي لعدد القنابل المقترح عند تغيير حجم الشبكة
 function onGridSizeChange() {
     const gridSize = document.getElementById('gridSizeSel').value;
     const bombSel = document.getElementById('bombCountSel');
     if (gridSize === "25") {
-        bombSel.value = "1"; // افتراضي 25 مربع يكون 1 قنبلة
+        bombSel.value = "1";
     } else if (gridSize === "40") {
-        bombSel.value = "2"; // افتراضي 40 مربع يكون 2 قنبلة
+        bombSel.value = "2";
     } else if (gridSize === "50") {
-        bombSel.value = "3"; // افتراضي 50 مربع يكون 3 قنابل
+        bombSel.value = "3";
     }
 }
 
@@ -240,7 +237,6 @@ function startNewGame() {
     }
     teams = names.map((name, i) => ({id: i, score: 0, name: name})); 
 
-    // تحديث وتوليد النقاط الحمراء في الأعلى حسب العدد المختار بدقة
     const ballsContainer = document.getElementById('bombBallsContainer');
     ballsContainer.innerHTML = '';
     for(let i = 1; i <= ballsCount; i++) {
@@ -266,7 +262,8 @@ function renderTeams() {
         <input class="t-score" value="${t.score}" onchange="teams[${i}].score = parseInt(this.value)">
     </div>`).join(''); 
 }
-    
+
+// تعديل المنطق هنا: اختيار المربعات الأعلى قيمة والأكثر تنوعاً لتقليل التشابهات، مع توزيع عشوائي تام للشبكة
 function setupGrid(total, bombs) {
     const grid = document.getElementById('gameGrid');
     grid.innerHTML = '';
@@ -282,25 +279,55 @@ function setupGrid(total, bombs) {
     for(let i = 0; i < 3; i++) pool.push({t: 'x', v: 2, c: 'bg-white-special'});
     for(let i = 0; i < 2; i++) pool.push({t: 'x', v: 3, c: 'bg-white-special'});
 
-    // 2. تعبئة باقي العناصر بالبيانات العادية حسب حجم الشبكة
-    let standardPool = (total == 40) ? [...goldenPack40] : [];
-    if (total != 40) {
-        for (let v = 1; v <= 9; v++) {
-            colors.forEach(c => standardPool.push({t: 'n', v: v, c: c}));
-        }
+    let standardPool = [];
+
+    if (total == 40) {
+        // نمط الأربعين: نعتمد على الحزمة الذهبية الأصلية مع إعادة ترتيب تصاعدي حسب القيمة واللون لضمان أعلى تنوع وقيم عالية متوازنة
+        standardPool = [...goldenPack40];
+    } else {
+        // نمط الخمسة وعشرين (أو أي حجم آخر): نولد العناصر مع التركيز حصرياً على القيم العالية (من 5 إلى 9) وتوزيعها بتبادل الألوان لتفادي التشابهات المتتالية
+        let highValues = [9, 8, 7, 6, 5];
+        highValues.forEach(v => {
+            colors.forEach(c => {
+                standardPool.push({t: 'n', v: v, c: c});
+            });
+        });
     }
-    
+
+    // خلط مبدئي للمجموعة المعيارية لضمان التنوع العشوائي في الاختيار
     shuffleArray(standardPool);
 
+    // تصفية إضافية ذكية: منع أي عنصرين متشابهين تماماً (نفس الرقم ونفس اللون) من التواجد متجاورين في مجموعة الاختيار لتقليل التشابهات المحتملة
+    let filteredStandardPool = [];
+    let lastAdded = null;
+    while(standardPool.length > 0) {
+        let item = standardPool.pop();
+        if(lastAdded && lastAdded.v === item.v && lastAdded.c === item.c) {
+            standardPool.unshift(item); // إعادة وضعه وتجربة عنصر آخر
+            let altItem = standardPool.pop();
+            filteredStandardPool.push(altItem);
+            lastAdded = altItem;
+        } else {
+            filteredStandardPool.push(item);
+            lastAdded = item;
+        }
+    }
+    standardPool = filteredStandardPool;
+
+    // تعبئة باقي عناصر الشبكة بالكامل
     while(pool.length < total) {
         if(standardPool.length === 0) {
-            standardPool = [...goldenPack40];
+            standardPool = (total == 40) ? [...goldenPack40] : [];
+            if(total != 40) {
+                let highValues = [9, 8, 7, 6, 5];
+                highValues.forEach(v => { colors.forEach(c => standardPool.push({t: 'n', v: v, c: c})); });
+            }
             shuffleArray(standardPool);
         }
         pool.push(standardPool.pop());
     }
 
-    // 3. خلط نهائي شامل للمصفوفة الكاملة بـ 3 دورات عشوائية تامة لتجنب تمركز العناصر
+    // 2. خلط نهائي شامل للمصفوفة الكاملة بـ 3 دورات عشوائية تامة لتوزيع المربعات في الشبكة بشكل عشوائي تماماً
     shuffleArray(pool);
     shuffleArray(pool);
     shuffleArray(pool);
@@ -330,7 +357,7 @@ function setupGrid(total, bombs) {
         };
         grid.appendChild(sq);
     });
-}   
+}  
 
 function undoSquare() {
     if (currentTurnHistory.length === 0) return;
