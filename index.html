@@ -126,26 +126,20 @@
 </div>
 
 <script>
-   const goldenPack40 = [
-    {t: 'n', v: 9, c: 'bg-red'}, {t: 'n', v: 9, c: 'bg-green'}, {t: 'n', v: 9, c: 'bg-purple'},
-    {t: 'n', v: 8, c: 'bg-blue'}, {t: 'n', v: 8, c: 'bg-yellow'}, {t: 'n', v: 8, c: 'bg-red'},
-    {t: 'n', v: 7, c: 'bg-green'}, {t: 'n', v: 7, c: 'bg-purple'}, {t: 'n', v: 7, c: 'bg-blue'},
-    {t: 'n', v: 6, c: 'bg-yellow'}, {t: 'n', v: 6, c: 'bg-red'}, {t: 'n', v: 6, c: 'bg-green'},
-    {t: 'n', v: 5, c: 'bg-blue'}, {t: 'n', v: 5, c: 'bg-purple'}, {t: 'n', v: 5, c: 'bg-yellow'},
-    {t: 'n', v: 4, c: 'bg-red'}, {t: 'n', v: 4, c: 'bg-green'}, {t: 'n', v: 4, c: 'bg-blue'},
-    {t: 'n', v: 3, c: 'bg-red'}, {t: 'n', v: 3, c: 'bg-green'}, {t: 'n', v: 3, c: 'bg-purple'},
-    {t: 'n', v: 2, c: 'bg-blue'}, {t: 'n', v: 2, c: 'bg-yellow'},
-    {t: 'n', v: 1, c: 'bg-red'}, {t: 'n', v: 1, c: 'bg-green'}, {t: 'n', v: 1, c: 'bg-blue'},
-    {t: 'n', v: 6, c: 'bg-blue'}, {t: 'n', v: 5, c: 'bg-red'}, {t: 'n', v: 4, c: 'bg-yellow'},
-    {t: 'n', v: 6, c: 'bg-purple'}, {t: 'n', v: 5, c: 'bg-green'}, {t: 'n', v: 4, c: 'bg-purple'},
-    {t: 'n', v: 9, c: 'bg-yellow'}
-];
+   const fullStandardNumericPool = [];
+   const colorsList = ['bg-red', 'bg-green', 'bg-blue', 'bg-yellow', 'bg-purple'];
+   
+   for(let val = 9; val >= 1; val--) {
+       colorsList.forEach(col => {
+           fullStandardNumericPool.push({t: 'n', v: val, c: col});
+       });
+   }
 
- let currentTurnHistory = [];  
- let lastTurnScore = 0;  
- let gameHistory = [];  
- let openedCount = 0; 
- let teams = [], currentTeamIdx = 0, turnPicks = [], isProcessing = false, audioCtx, cycleInterval, ballsCount = 2;
+  let currentTurnHistory = [];  
+  let lastTurnScore = 0;  
+  let gameHistory = [];  
+  let openedCount = 0; 
+  let teams = [], currentTeamIdx = 0, turnPicks = [], isProcessing = false, audioCtx, cycleInterval, ballsCount = 2;
 
 function saveNamesToStorage() {
     const names = teams.map(t => t.name);
@@ -263,7 +257,7 @@ function renderTeams() {
     </div>`).join(''); 
 }
 
-// تعديل المنطق هنا: اختيار المربعات الأعلى قيمة والأكثر تنوعاً لتقليل التشابهات، مع توزيع عشوائي تام للشبكة
+// خوارزمية توزيع نظيفة ومضمونة مع ضبط الأعمدة والصفوف (5 أعمدة لنمط 40: أي 5 أعمدة و 8 صفوف)
 function setupGrid(total, bombs) {
     const grid = document.getElementById('gameGrid');
     grid.innerHTML = '';
@@ -271,66 +265,66 @@ function setupGrid(total, bombs) {
     turnPicks = []; 
     currentTurnHistory = [];
     
-    const colors = ['bg-red', 'bg-green', 'bg-blue', 'bg-yellow', 'bg-purple'];
-    let pool = [];
+    // ضبط الأعمدة والصفوف حسب حجم الشبكة
+    let cols = 5; // دائماً 5 أعمدة بناءً على رغبتك المعتمدة
+    let rows = total / cols;
 
-    // 1. إضافة العناصر الخاصة (القنابل والمضاعفات)
-    for(let i = 0; i < bombs; i++) pool.push({t: 'b', v: 0, c: 'bg-white-special'});
-    for(let i = 0; i < 3; i++) pool.push({t: 'x', v: 2, c: 'bg-white-special'});
-    for(let i = 0; i < 2; i++) pool.push({t: 'x', v: 3, c: 'bg-white-special'});
+    // تجهيز العناصر الخاصة
+    let specialItems = [];
+    for(let i = 0; i < bombs; i++) specialItems.push({t: 'b', v: 0, c: 'bg-white-special'});
+    for(let i = 0; i < 3; i++) specialItems.push({t: 'x', v: 2, c: 'bg-white-special'});
+    for(let i = 0; i < (total > 25 ? 2 : 1); i++) specialItems.push({t: 'x', v: 3, c: 'bg-white-special'});
 
-    let standardPool = [];
+    let availablePool = [...fullStandardNumericPool];
+    shuffleArray(availablePool);
 
-    if (total == 40) {
-        // نمط الأربعين: نعتمد على الحزمة الذهبية الأصلية مع إعادة ترتيب تصاعدي حسب القيمة واللون لضمان أعلى تنوع وقيم عالية متوازنة
-        standardPool = [...goldenPack40];
-    } else {
-        // نمط الخمسة وعشرين (أو أي حجم آخر): نولد العناصر مع التركيز حصرياً على القيم العالية (من 5 إلى 9) وتوزيعها بتبادل الألوان لتفادي التشابهات المتتالية
-        let highValues = [9, 8, 7, 6, 5];
-        highValues.forEach(v => {
-            colors.forEach(c => {
-                standardPool.push({t: 'n', v: v, c: c});
-            });
-        });
+    let selectedNumerics = [];
+    while(selectedNumerics.length < (total - specialItems.length) && availablePool.length > 0) {
+        selectedNumerics.push(availablePool.pop());
     }
 
-    // خلط مبدئي للمجموعة المعيارية لضمان التنوع العشوائي في الاختيار
-    shuffleArray(standardPool);
+    let allItems = [...selectedNumerics, ...specialItems];
+    shuffleArray(allItems);
 
-    // تصفية إضافية ذكية: منع أي عنصرين متشابهين تماماً (نفس الرقم ونفس اللون) من التواجد متجاورين في مجموعة الاختيار لتقليل التشابهات المحتملة
-    let filteredStandardPool = [];
-    let lastAdded = null;
-    while(standardPool.length > 0) {
-        let item = standardPool.pop();
-        if(lastAdded && lastAdded.v === item.v && lastAdded.c === item.c) {
-            standardPool.unshift(item); // إعادة وضعه وتجربة عنصر آخر
-            let altItem = standardPool.pop();
-            filteredStandardPool.push(altItem);
-            lastAdded = altItem;
-        } else {
-            filteredStandardPool.push(item);
-            lastAdded = item;
-        }
-    }
-    standardPool = filteredStandardPool;
-
-    // تعبئة باقي عناصر الشبكة بالكامل
-    while(pool.length < total) {
-        if(standardPool.length === 0) {
-            standardPool = (total == 40) ? [...goldenPack40] : [];
-            if(total != 40) {
-                let highValues = [9, 8, 7, 6, 5];
-                highValues.forEach(v => { colors.forEach(c => standardPool.push({t: 'n', v: v, c: c})); });
+    let gridMatrix = Array(rows).fill(null).map(() => Array(cols).fill(null));
+    
+    allItems.forEach(item => {
+        let placed = false;
+        let attempts = 0;
+        while(!placed && attempts < 100) {
+            let r = Math.floor(Math.random() * rows);
+            let c = Math.floor(Math.random() * cols);
+            if(gridMatrix[r][c] === null) {
+                let hasNeighborConflict = false;
+                if(item.t === 'n') {
+                    for(let dr = -1; dr <= 1; dr++) {
+                        for(let dc = -1; dc <= 1; dc++) {
+                            let nr = r + dr, nc = c + dc;
+                            if(nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
+                                let neighbor = gridMatrix[nr][nc];
+                                if(neighbor && neighbor.t === 'n' && (neighbor.c === item.c || neighbor.v === item.v)) {
+                                    hasNeighborConflict = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                if(!hasNeighborConflict || attempts > 50) {
+                    gridMatrix[r][c] = item;
+                    placed = true;
+                }
             }
-            shuffleArray(standardPool);
+            attempts++;
         }
-        pool.push(standardPool.pop());
-    }
+    });
 
-    // 2. خلط نهائي شامل للمصفوفة الكاملة بـ 3 دورات عشوائية تامة لتوزيع المربعات في الشبكة بشكل عشوائي تماماً
-    shuffleArray(pool);
-    shuffleArray(pool);
-    shuffleArray(pool);
+    let pool = [];
+    gridMatrix.forEach(row => row.forEach(cell => {
+        if(cell) pool.push(cell);
+        else pool.push(availablePool.pop() || {t: 'n', v: 1, c: 'bg-red'});
+    }));
+
+    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
 
     pool.forEach((d, i) => {
         const sq = document.createElement('div');
